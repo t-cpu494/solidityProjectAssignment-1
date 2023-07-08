@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: GPL- 3.0
+pragma solidity >= 0.5.0 < 0.9.0;
+
+contract studentRecords {
+    address public teacher;
+    struct Student {
+        uint roll;
+        string name;
+        uint[3] marks;
+    }
+    
+    mapping(uint => Student) StudentRecords;
+
+    constructor() {
+        teacher = msg.sender;
+    }
+
+    modifier checkingUserAuthorization( address caller ) {
+        require( caller == teacher, "You are not an authorized user!");
+        _;
+    }
+
+    function addRecord(uint _roll, string memory _name, uint[3] memory _marks) public checkingUserAuthorization(msg.sender) {
+        require(_roll != 0, "You cannot have Roll Number as 0!");
+        StudentRecords[_roll] = Student(_roll, _name, _marks);
+    }
+
+    function getRecord(uint _roll) checkingUserAuthorization(msg.sender) public view returns(Student memory) {
+        require(StudentRecords[_roll].roll != 0 , "Record does not exist!");
+        return StudentRecords[_roll];
+    }
+
+    function deleteRecord(uint _roll) public checkingUserAuthorization(msg.sender) {
+        delete StudentRecords[_roll];
+    }
+}
